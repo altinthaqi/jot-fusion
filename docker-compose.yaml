@@ -1,0 +1,9 @@
+version: "3"
+services:
+  postgres:
+    image: postgres
+    container_name: jot-postgres
+    environment:
+      POSTGRES_PASSWORD: jot-fusion
+    ports:
+      - "5432:5432"

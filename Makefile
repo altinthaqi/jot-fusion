@@ -1,7 +1,10 @@
 build:
 	@go build -o bin/jot-fusion
 
-run: build
+start-docker:
+	@docker-compose up -d
+
+run: start-docker build
 	@./bin/jot-fusion
 	
 test:
