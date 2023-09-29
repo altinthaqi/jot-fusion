@@ -22,7 +22,7 @@ func (s *PostgresStore) CreateAccount(acc *model.Account) error {
 		values ($1, $2, $3, $4, $5)`
 
 	_, err := s.db.Query(query,
-		acc.FitstName,
+		acc.FirstName,
 		acc.LastName,
 		acc.Number,
 		acc.Balance,
@@ -39,7 +39,10 @@ func (s *PostgresStore) UpdateAccount(*model.Account) error {
 }
 
 func (s *PostgresStore) DeleteAccount(id int) error {
-	return nil
+	query := `delete from account where id = $1`
+	_, err := s.db.Query(query, id)
+
+	return err
 }
 
 func (s *PostgresStore) GetAccountByID(id int) (*model.Account, error) {
@@ -53,7 +56,7 @@ func (s *PostgresStore) GetAccountByID(id int) (*model.Account, error) {
 
 	for rows.Next() {
 		err := rows.Scan(&account.ID,
-			&account.FitstName,
+			&account.FirstName,
 			&account.LastName,
 			&account.Number,
 			&account.Balance,
@@ -80,7 +83,7 @@ func (s *PostgresStore) GetAccounts() ([]*model.Account, error) {
 		account := new(model.Account)
 
 		err := rows.Scan(&account.ID,
-			&account.FitstName,
+			&account.FirstName,
 			&account.LastName,
 			&account.Number,
 			&account.Balance,

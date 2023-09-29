@@ -7,3 +7,4 @@ services:
       POSTGRES_PASSWORD: jot-fusion
     ports:
       - "5432:5432"
+    restart: always
