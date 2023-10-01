@@ -1,6 +1,9 @@
 package db
 
 import (
+	"database/sql"
+	"fmt"
+
 	"github.com/altinthaqi/jot-fusion/model"
 )
 
@@ -52,23 +55,11 @@ func (s *PostgresStore) GetAccountByID(id int) (*model.Account, error) {
 		return nil, err
 	}
 
-	account := &model.Account{}
-
 	for rows.Next() {
-		err := rows.Scan(&account.ID,
-			&account.FirstName,
-			&account.LastName,
-			&account.Number,
-			&account.Balance,
-			&account.CreatedAt)
-
-		if err != nil {
-			return nil, err
-		}
+		return scanIntoAccount(rows)
 	}
 
-	return account, nil
-
+	return nil, fmt.Errorf("account with id %d not found", id)
 }
 
 func (s *PostgresStore) GetAccounts() ([]*model.Account, error) {
@@ -80,22 +71,29 @@ func (s *PostgresStore) GetAccounts() ([]*model.Account, error) {
 
 	accounts := []*model.Account{}
 	for rows.Next() {
-		account := new(model.Account)
-
-		err := rows.Scan(&account.ID,
-			&account.FirstName,
-			&account.LastName,
-			&account.Number,
-			&account.Balance,
-			&account.CreatedAt)
-
+		account, err := scanIntoAccount(rows)
 		if err != nil {
 			return nil, err
 		}
-
 		accounts = append(accounts, account)
-
 	}
 
 	return accounts, nil
+}
+
+func scanIntoAccount(rows *sql.Rows) (*model.Account, error) {
+	account := new(model.Account)
+
+	err := rows.Scan(&account.ID,
+		&account.FirstName,
+		&account.LastName,
+		&account.Number,
+		&account.Balance,
+		&account.CreatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return account, err
 }

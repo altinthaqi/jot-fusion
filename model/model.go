@@ -15,13 +15,14 @@ type (
 		CreatedAt time.Time `json:"createdAt"`
 	}
 
+	TransferRequest struct {
+		ToAccount int `json:"toAccount"`
+		Amount    int `json:"amount"`
+	}
+
 	CreateAccountRequest struct {
 		FirstName string `json:"firstName" validate:"required|min_len:1"`
 		LastName  string `json:"lastName" validate:"required|min_len:1"`
-	}
-
-	DeleteAccountRequest struct {
-		ID int `json:"id" validate:"required|min:1"`
 	}
 )
 
