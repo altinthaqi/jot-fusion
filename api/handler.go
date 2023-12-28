@@ -10,6 +10,28 @@ import (
 	"github.com/gookit/validate"
 )
 
+func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		return fmt.Errorf("method not allowed %s", r.Method)
+	}
+
+	var req model.LoginRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+
+	acc, err := s.store.GetAccountByNumber(int(req.Number))
+
+	if err != nil {
+		return nil
+	}
+
+	fmt.Println("the acc", acc)
+
+	return WriteJSON(w, http.StatusOK, req)
+}
+
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		accounts, err := s.store.GetAccounts()
@@ -20,24 +42,23 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 		return WriteJSON(w, http.StatusOK, accounts)
 	}
 	if r.Method == "POST" {
-		createAccountReq := new(model.CreateAccountRequest)
-		if err := json.NewDecoder(r.Body).Decode(createAccountReq); err != nil {
+		req := new(model.CreateAccountRequest)
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			return err
 		}
 
-		v := validate.Struct(createAccountReq)
+		v := validate.Struct(req)
 		if !v.Validate() {
 			return fmt.Errorf("missing required fields")
 		}
 
-		account := model.NewAccount(createAccountReq.FirstName, createAccountReq.LastName)
+		account, err := model.NewAccount(req.FirstName, req.LastName, req.Password)
 
-		if err := s.store.CreateAccount(account); err != nil {
+		if err != nil {
 			return err
 		}
 
-		_, err := createJWT(account)
-		if err != nil {
+		if err := s.store.CreateAccount(account); err != nil {
 			return err
 		}
 
